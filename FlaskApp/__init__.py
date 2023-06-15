@@ -4,14 +4,16 @@ import string
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
     password_length, with_specials = get_params()
-    
+
     if password_length > 32:
         return jsonify({'error': 'Password length must be less than 32 characters.'}), 400
 
-    return jsonify(generate_password(password_length, with_specials))
+    password = generate_password(password_length, with_specials)
+    return jsonify({'value': password})
 
 
 def get_params():
@@ -22,11 +24,13 @@ def get_params():
     with_specials = request.args.get('specials', default='yes').lower() != 'no'
     return password_length, with_specials
 
+
 def generate_password(length, with_specials):
     charlist = [*string.ascii_letters, *string.digits]
     if with_specials:
         charlist += [*string.punctuation]
     return ''.join([secrets.choice(charlist) for i in range(length)])
+
 
 if __name__ == "__main__":
     app.run()
